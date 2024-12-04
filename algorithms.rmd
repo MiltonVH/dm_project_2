@@ -12,14 +12,10 @@ Carga de las librerías utilizadas para el proyecto.
 ```{r}
 library(here)
 library(dplyr)
-library(arules)
 library(ggplot2)
 
 clc <- function() shell("cls")
 ```
-
-
-
 
 ## Carga de datos serializados 
 ```{r}
@@ -95,131 +91,5 @@ df <- na.omit(df)
 df <- graduados %>% select(all_of(vars))
 
 df <- df %>% select(-Cod_Sector)
-
-```
-
-
-## Uso del algoritmo apriori
-
-```{r}
-reglas <- apriori(df,
-                  parameter = list(support = 0.2, confidence = 0.5))
-
-reglas <- as(reglas, "data.frame")
-partes <- split(reglas, cut(seq_len(nrow(reglas)), breaks = 8))
-
-```
-
-
-
-## Uso de FP-Growth
-
-```{r}
-reglas <- fim4r(df, method = "fpgrowth", target = "rules",
-                support = .2, confidence = .5)
-reglas <- as(reglas, "data.frame")
-partes <- split(reglas, cut(seq_len(nrows(reglas)), breaks = 10))
-
-```
-
-
-```{r}
-i <- 6
-aux <- partes[[i]] %>% filter(support > 0.35 & confidence > 0.8
-                              & confidence < 0.97)
-View(aux)
-```
-
-
-# Agrupación 
-
-## K - Means
-Mediante K - Means sin embargo este no es un algoritmo apropiado para este tipo de datos.
-
-```{r}
-df <- graduados %>% select(Measure_Mate, Measure_Lect,
-                           Cod_Depa, Desempeño_Mate, Desempeño_Lect)
-df <- na.omit(df)
-df <- df %>%
-  mutate(across(c("Cod_Depa", "Desempeño_Mate", "Desempeño_Lect"), as.integer))
-```
-
-```{r}
-cluster <- kmeans(df, centers = 5)
-```
-
-```{r}
-
-fig <- ggplot(df, aes(y = Measure_Mate, x = Measure_Lect,
-               color = as.factor(cluster$cluster))) +
-  geom_point() +
-  geom_point(data = as.data.frame(cluster$centers),
-             aes(x = Measure_Mate, y = Measure_Lect),
-             color = "black", size = 4, shape = 17) +
-  labs(title = "Hab. Mate vs Hab. Lect",
-       color = "Clusters") +
-  theme_minimal()
-
-path_file <- here("src/graphs/kmeans.png")
-ggsave(path_file,
-       plot = fig,
-       width = 4,
-       height = 4,
-       units = "in")
-```
-
-
-# K - Modes
-Se utilizo el algoritmo K - Modes que de forma simplificada es una versión del algoritmo K-Means pero para variables categoricas. 
-
-```{r}
-#detach("package:dplyr", unload = TRUE)
-library(klaR)
-library(patchwork)
-```
-
-Aplicación de algorimo junto con filtrado de los datos 
-```{r}
-df <- graduados[vars]
-df <- df[df$Logro_Mate=="Logro" | df$Logro_Lect=="Logro",]
-df <- na.omit(df)
-km <- kmodes(df, 5)
-```
-
-
-Visualización de grupos formador como data frame transpuesto
-```{r}
-View(t(km$modes))
-```
-
-Generación de grafico 
-```{r}
-modes_df <- as.data.frame(km$modes)
-fig1 <-(ggplot(modes_df, aes(x = Desempeño_Lect, fill = factor(seq_len(nrow(modes_df))))) +
-  geom_bar(stat = "count") +
-  labs(title = "Modos -> Lectura", fill="Clusters")+
-    theme(axis.text.x = element_text(angle = 90,vjust = 0.25, hjust = 1)))
-
-fig2 <-(ggplot(modes_df, aes(x = Desempeño_Mate, fill = factor(seq_len(nrow(modes_df))))) +
-  geom_bar(stat = "count") +
-  labs(title = "Modos -> Matemáticas", fill="Clusters")+ 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)))
-
-fig <- fig2 + fig1
-```
-
-```{r}
-path_file <- here("src/graphs/kmodes_1.png")
-ggsave(path_file,
-       plot = fig,
-       width = 8,
-       height = 4,
-       units = "in")
-```
-
-
-
-```{r}
-library(dplyr)
 ```
 
