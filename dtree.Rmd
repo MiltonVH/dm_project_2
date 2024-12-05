@@ -1,0 +1,212 @@
+---
+title: "ÁRboles de decisión"
+output: html_notebook
+---
+
+# Aplicación de árboles de decisión
+
+## Limpiar entorno
+Limpiar por consola de todo el entorno (variables, datos, librerías).
+```{r}
+rm(list = ls())
+```
+
+## Librerías  y CLC
+Carga de las librerías utilizadas para el proyecto.
+```{r}
+library(here)
+library(dplyr)
+library(rpart)
+library(rpart.plot)
+
+clc <- function() shell("cls")
+```
+
+## Carga de datos serializados 
+```{r}
+# Indicar año 2023, 2022 o 2019
+year <- "2023"
+path_file <- here("p2_data", paste("g", year, ".Rds", sep = ""))
+graduados <- readRDS(path_file)
+```
+
+
+## Elaboración de Árboles
+
+```{r}
+df <- na.omit(graduados)
+```
+
+
+```{r}
+arbol_lect <- rpart(
+  Logro_Lect ~
+    Lect_Periodos_Lectura_Semana +
+      Mate_Periodos_Matematicas_Semana +
+      Computadora +
+      Sc_Servicio_Internet +
+      Sexo_RECO +
+      Lect_Libros_Completos_Ha_Leido +
+      Ed_Repitio_Algun_Grado +
+      Fm_Grado_Alcanzo_Papa_RECO +
+      Fm_Grado_Alcanzo_Mama_RECO +
+      Cod_Sector +
+      Cod_Area +
+      Cod_Region,
+  data = df, method = "class"
+)
+
+arbol_mate <- rpart(
+  Logro_Mate ~
+    Desempeño_Lect +
+      Mate_Periodos_Matematicas_Semana +
+      Lect_Periodos_Lectura_Semana +
+      Computadora +
+      Sc_Servicio_Internet +
+      Sexo_RECO +
+      Lect_Libros_Completos_Ha_Leido +
+      Ed_Repitio_Algun_Grado +
+      Fm_Grado_Alcanzo_Papa_RECO +
+      Fm_Grado_Alcanzo_Mama_RECO +
+      Cod_Sector +
+      Cod_Area +
+      Cod_Region,
+  data = df, method = "class"
+)
+
+arbol_sexo <- rpart(
+  Sexo_RECO ~
+    Logro_Lect +
+      Logro_Mate +
+      Computadora +
+      Sc_Servicio_Internet +
+      Lect_Libros_Completos_Ha_Leido +
+      Ed_Repitio_Algun_Grado +
+      Fm_Grado_Alcanzo_Papa_RECO +
+      Fm_Grado_Alcanzo_Mama_RECO,
+  data = df, method = "class"
+)
+
+arbol_secadora <- rpart(
+  Secadora ~
+    Logro_Lect +
+      Logro_Mate +
+      Sexo_RECO +
+      Computadora +
+      Sc_Servicio_Internet +
+      Lect_Libros_Completos_Ha_Leido +
+      Ed_Repitio_Algun_Grado +
+      Fm_Grado_Alcanzo_Papa_RECO +
+      Fm_Grado_Alcanzo_Mama_RECO,
+  data = df, method = "class"
+)
+```
+
+## Generación de gráficos
+```{r}
+
+path_file <- here("graphs", "arbol_lect.png")
+png(path_file, width = 800, height = 600)
+rpart.plot(arbol_lect, type = 2, extra = 0, under = TRUE,
+           fallen.leaves = TRUE, box.palette = "BuGn",
+           main = "Predicción logro lectura", cex = 1)
+dev.off()
+
+path_file <- here("graphs", "arbol_mate.png")
+png(path_file, width = 800, height = 600)
+rpart.plot(arbol_mate, type = 2, extra = 0, under = TRUE,
+           fallen.leaves = TRUE, box.palette = "BuGn",
+           main = "Predicción logro mate", cex = 1)
+dev.off()
+
+path_file <- here("graphs", "arbol_sexo.png")
+png(path_file, width = 800, height = 600)
+rpart.plot(arbol_sexo, type = 2, extra = 0, under = TRUE,
+           fallen.leaves = TRUE, box.palette = "BuGn",
+           main = "Predicción de sexo alumno", cex = 1)
+dev.off()
+
+path_file <- here("graphs", "arbol_secadora.png")
+png(path_file, width = 800, height = 600)
+rpart.plot(arbol_secadora, type = 2, extra = 0, under = TRUE,
+           fallen.leaves = TRUE, box.palette = "BuGn",
+           main = "Predicción de tener secadora", cex = 1)
+dev.off()
+
+```
+
+
+**Caso No. 1**, predicción de logro en lectura
+```{r}
+caso <- data.frame(
+  Lect_Periodos_Lectura_Semana = "6 Períodos",
+  Mate_Periodos_Matematicas_Semana = "Seis periodos",
+  Computadora = "Si",
+  Sc_Servicio_Internet = "Si",
+  Sexo_RECO = "Femenino",
+  Lect_Libros_Completos_Ha_Leido = "Seis libros",
+  Ed_Repitio_Algun_Grado = "No",
+  Fm_Grado_Alcanzo_Papa_RECO = "Diversificado",
+  Fm_Grado_Alcanzo_Mama_RECO = "Básicos",
+  Cod_Sector = "Privado",
+  Cod_Area = "Urbana",
+  Cod_Region = "Región 8 o Petén"
+)
+result <- predict(arbol_lect, caso, type = "class")
+result
+```
+
+**Caso No. 2** , predicción de logro en matemáticas
+
+```{r}
+caso <- data.frame(
+  Desempeño_Lect = "Excelente",
+  Lect_Periodos_Lectura_Semana = "6 Períodos",
+  Mate_Periodos_Matematicas_Semana = "Cuatro periodos",
+  Computadora = "Si",
+  Sc_Servicio_Internet = "Si",
+  Sexo_RECO = "Femenino",
+  Lect_Libros_Completos_Ha_Leido = "Seis libros",
+  Ed_Repitio_Algun_Grado = "No",
+  Fm_Grado_Alcanzo_Papa_RECO = "Universidad o más",
+  Fm_Grado_Alcanzo_Mama_RECO = "Básicos",
+  Cod_Sector = "Privado",
+  Cod_Area = "Urbana",
+  Cod_Region = "Región 5 o Central"
+)
+result <- predict(arbol_mate, caso, type = "class")
+result
+```
+
+**Caso No. 3** , 
+```{r}
+caso <- data.frame(
+  Logro_Lect = "Logro",
+  Logro_Mate = "Logro",
+  Computadora = "Si",
+  Sc_Servicio_Internet = "Si",
+  Lect_Libros_Completos_Ha_Leido = "Cuatro libros",
+  Ed_Repitio_Algun_Grado = "No",
+  Fm_Grado_Alcanzo_Papa_RECO = "Diversificado",
+  Fm_Grado_Alcanzo_Mama_RECO = "Diversificado"
+)
+result <- predict(arbol_sexo, caso, type = "class")
+result
+```
+
+**Caso No. 4** predicción de poseer secadora
+```{r}
+caso <- data.frame(
+  Logro_Lect  = "Logro",
+  Logro_Mate  = "Logro",
+  Sexo_RECO  = "Masculino",
+  Computadora  = "Si",
+  Sc_Servicio_Internet  = "Si",
+  Lect_Libros_Completos_Ha_Leido  = "Cinco libros",
+  Ed_Repitio_Algun_Grado  = "No",
+  Fm_Grado_Alcanzo_Papa_RECO  = "Universidad o más",
+  Fm_Grado_Alcanzo_Mama_RECO = "Universidad o más"
+)
+result <- predict(arbol_secadora, caso, type = "class")
+result
+```
