@@ -1,0 +1,153 @@
+---
+title: "Bosque Aleatorio"
+output: html_notebook
+---
+
+# Aplicación de Bosque Aleatorio
+
+## Limpiar entorno
+Limpiar por consola de todo el entorno (variables, datos, librerías).
+```{r}
+rm(list = ls())
+```
+
+## Librerías  y CLC
+Carga de las librerías utilizadas para el proyecto.
+```{r}
+library(here)
+library(dplyr)
+library(randomForest)
+
+clc <- function() shell("cls")
+```
+
+## Carga de datos serializados 
+```{r}
+# Indicar año 2023, 2022 o 2019
+year <- "2023"
+path_file <- here("p2_data", paste("g", year, ".Rds", sep = ""))
+graduados <- readRDS(path_file)
+```
+
+Limpieza de valores nulos
+```{r}
+df <- graduados %>% filter(Cod_Sector == "Oficial")
+df <- na.omit(df)
+```
+
+## Separación del conjunto de datos
+
+```{r}
+df <- df %>%
+  mutate(Conjunto = ifelse(runif(n()) < 0.8, "train", "test"))
+
+# Separar los conjuntos
+train <- df %>%
+  filter(Conjunto == "train") %>%
+  select(-Conjunto)
+
+test <- df %>%
+  filter(Conjunto == "test") %>%
+  select(-Conjunto)
+```
+
+## Entrenamiento del bosque
+
+```{r}
+rforest_lect <- randomForest(
+  Logro_Lect ~
+    Lect_Periodos_Lectura_Semana +
+      Computadora +
+      Sc_Servicio_Internet +
+      Lect_Libros_Completos_Ha_Leido +
+      Ed_Repitio_Algun_Grado +
+      Fm_Grado_Alcanzo_Papa_RECO +
+      Fm_Grado_Alcanzo_Mama_RECO +
+      Edad_RECO +
+      Sexo_RECO +
+      Cod_Area +
+      Cod_Depa,
+  data = train,
+  ntree = 200,
+  mtry = 7
+)
+
+entreno <- predict(rforest_lect, test)
+```
+
+```{r}
+rforest_mate <- randomForest(
+  Logro_Mate ~
+    Mate_Periodos_Matematicas_Semana +
+      Computadora +
+      Sc_Servicio_Internet +
+      Ed_Repitio_Algun_Grado +
+      Fm_Grado_Alcanzo_Papa_RECO +
+      Fm_Grado_Alcanzo_Mama_RECO +
+      Edad_RECO +
+      Sexo_RECO +
+      Cod_Area +
+      Cod_Depa,
+  data = train,
+  ntree = 200,
+  mtry = 7
+)
+
+entreno <- predict(rforest_mate, test)
+```
+
+## Generación de gráficos
+```{r}
+path_file <- here("graphs", "bosque_lect.png")
+png(path_file, width = 800, height = 600)
+plot(rforest_lect)
+dev.off()
+
+path_file <- here("graphs", "bosque_mate.png")
+png(path_file, width = 800, height = 600)
+plot(rforest_mate)
+dev.off()
+```
+
+**Caso No. 1** prediccion logro en lectura dentro del sector *oficial*
+```{r}
+dato <- test[1, , drop = FALSE]
+
+dato$Logro_Lect <- NULL
+dato$Lect_Periodos_Lectura_Semana[1] <- "6 Períodos"
+dato$Computadora[1] <- "Si"
+dato$Sc_Servicio_Internet[1] <- "Si"
+dato$Lect_Libros_Completos_Ha_Leido[1] <- "Seis libros"
+dato$Ed_Repitio_Algun_Grado[1] <- "No"
+dato$Fm_Grado_Alcanzo_Papa_RECO[1] <- "Universidad o más"
+dato$Fm_Grado_Alcanzo_Mama_RECO[1] <- "Universidad o más"
+dato$Edad_RECO[1] <- "19 años"
+dato$Sexo_RECO[1] <- "Masculino"
+dato$Cod_Area[1] <- "Rural"
+dato$Cod_Depa[1] <- "Escuintla"
+
+prediccion <- predict(rforest_lect, dato)
+prediccion
+```
+
+
+**Caso No. 2** prediccion logro en matemáticas dentro del sector *oficial*
+```{r}
+dato <- test[1, , drop = FALSE]
+
+dato$Logro_Mate <- NULL
+dato$Mate_Periodos_Matematicas_Semana[1] <- "Cinco periodos"
+dato$Computadora[1] <- "Si"
+dato$Sc_Servicio_Internet[1] <- "Si"
+dato$Ed_Repitio_Algun_Grado[1] <- "No"
+dato$Fm_Grado_Alcanzo_Papa_RECO[1] <- "Universidad o más"
+dato$Fm_Grado_Alcanzo_Mama_RECO[1] <- "Universidad o más"
+dato$Edad_RECO[1] <- "19 años"
+dato$Sexo_RECO[1] <- "Femenino"
+dato$Cod_Area[1] <- "Rural"
+dato$Cod_Depa[1] <- "Chimaltenango"
+
+
+prediccion <- predict(rforest_mate, dato)
+prediccion
+```
