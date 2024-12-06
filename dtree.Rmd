@@ -46,6 +46,7 @@ arbol_lect <- rpart(
       Computadora +
       Sc_Servicio_Internet +
       Sexo_RECO +
+      Edad_RECO +
       Lect_Libros_Completos_Ha_Leido +
       Ed_Repitio_Algun_Grado +
       Fm_Grado_Alcanzo_Papa_RECO +
@@ -64,6 +65,7 @@ arbol_mate <- rpart(
       Computadora +
       Sc_Servicio_Internet +
       Sexo_RECO +
+      Edad_RECO + 
       Lect_Libros_Completos_Ha_Leido +
       Ed_Repitio_Algun_Grado +
       Fm_Grado_Alcanzo_Papa_RECO +
@@ -144,6 +146,7 @@ caso <- data.frame(
   Computadora = "Si",
   Sc_Servicio_Internet = "Si",
   Sexo_RECO = "Femenino",
+  Edad_RECO = "19 años",
   Lect_Libros_Completos_Ha_Leido = "Seis libros",
   Ed_Repitio_Algun_Grado = "No",
   Fm_Grado_Alcanzo_Papa_RECO = "Diversificado",
@@ -166,6 +169,7 @@ caso <- data.frame(
   Computadora = "Si",
   Sc_Servicio_Internet = "Si",
   Sexo_RECO = "Femenino",
+  Edad_RECO = "19 años",
   Lect_Libros_Completos_Ha_Leido = "Seis libros",
   Ed_Repitio_Algun_Grado = "No",
   Fm_Grado_Alcanzo_Papa_RECO = "Universidad o más",

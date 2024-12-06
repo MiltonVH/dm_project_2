@@ -147,7 +147,6 @@ dato$Sexo_RECO[1] <- "Femenino"
 dato$Cod_Area[1] <- "Rural"
 dato$Cod_Depa[1] <- "Chimaltenango"
 
-
 prediccion <- predict(rforest_mate, dato)
 prediccion
 ```
