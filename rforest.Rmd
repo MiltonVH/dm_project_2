@@ -123,7 +123,7 @@ dato$Fm_Grado_Alcanzo_Papa_RECO[1] <- "Universidad o más"
 dato$Fm_Grado_Alcanzo_Mama_RECO[1] <- "Universidad o más"
 dato$Edad_RECO[1] <- "19 años"
 dato$Sexo_RECO[1] <- "Masculino"
-dato$Cod_Area[1] <- "Rural"
+dato$Cod_Area[1] <- "Urbana"
 dato$Cod_Depa[1] <- "Escuintla"
 
 prediccion <- predict(rforest_lect, dato)
@@ -136,16 +136,16 @@ prediccion
 dato <- test[1, , drop = FALSE]
 
 dato$Logro_Mate <- NULL
-dato$Mate_Periodos_Matematicas_Semana[1] <- "Cinco periodos"
+dato$Mate_Periodos_Matematicas_Semana[1] <- "Tres periodos"
 dato$Computadora[1] <- "Si"
 dato$Sc_Servicio_Internet[1] <- "Si"
 dato$Ed_Repitio_Algun_Grado[1] <- "No"
 dato$Fm_Grado_Alcanzo_Papa_RECO[1] <- "Universidad o más"
 dato$Fm_Grado_Alcanzo_Mama_RECO[1] <- "Universidad o más"
-dato$Edad_RECO[1] <- "19 años"
+dato$Edad_RECO[1] <- "16 años o Menos"
 dato$Sexo_RECO[1] <- "Femenino"
-dato$Cod_Area[1] <- "Rural"
-dato$Cod_Depa[1] <- "Chimaltenango"
+dato$Cod_Area[1] <- "Urbana"
+dato$Cod_Depa[1] <- "Guatemala"
 
 prediccion <- predict(rforest_mate, dato)
 prediccion

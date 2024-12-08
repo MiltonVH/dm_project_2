@@ -9,6 +9,7 @@
 *.toc
 *.docs
 *.pyc
+*.html
 ## Intermediate documents:
 *.dvi
 *-converted-to.*

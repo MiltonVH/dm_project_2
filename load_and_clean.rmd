@@ -19,7 +19,8 @@ Carga del archivo .sav en el que se encuentra los datos utilizando el paquete :`
 ```{r}
 # Intercarmbiar path en función SPSS
 
-path_1 <- here("p1_data", "2023-Grad-Internet.sav")
+path_1 <- here("p2_data", "2023-Grad-Internet.sav")
+graduados <- read.spss(path_1, to.data.frame = TRUE)
 selector <- graduados$Corr_Año[1]
 ```
 

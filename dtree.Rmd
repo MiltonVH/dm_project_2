@@ -65,7 +65,7 @@ arbol_mate <- rpart(
       Computadora +
       Sc_Servicio_Internet +
       Sexo_RECO +
-      Edad_RECO + 
+      Edad_RECO +
       Lect_Libros_Completos_Ha_Leido +
       Ed_Repitio_Algun_Grado +
       Fm_Grado_Alcanzo_Papa_RECO +
